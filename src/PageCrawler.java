@@ -10,11 +10,12 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
-
-
+import java.util.logging.Logger;
 
 
 public class PageCrawler {
+
+    private static final Logger logger = Logger.getLogger(SiteCrawler.class.getName());
 
     public List<String> getLinks(String link) {
 
@@ -59,18 +60,42 @@ public class PageCrawler {
             return new ArrayList<>();
         }
 
-        // get base URL
-        String baseUrl = url.toExternalForm();
-
-        // iterate through all links on page and add to linksOnPage
+        // iterate through all links on page and add to linksOnPage array
         Elements elements = page.select("a");
         for(Element element : elements){
-//            UrlNormalizer.normalize(linkUrl, baseUrl);
-            linksOnPage.add(element.attr("abs:href"));
+            String rawLink = element.attr("abs:href");  // get link on page
+            if (rawLink.isEmpty()) {
+                continue;  // skip if dead link
+            }
+            logger.info("Considering " + rawLink);  // otherwise consider the link
+            try {
+                URL rawURL = new URL(rawLink);
+                if (inside(url, rawURL)) {  // stay on same website
+                    logger.info(rawURL + " is inside the domain of " + url.getHost() + "; adding to queue");
+                    linksOnPage.add(normaliseURL(rawURL));  // add to linksOnPage array
+                } else {
+                    logger.info(rawURL + " is outside the domain of " + url.getHost());
+                }
+            } catch (MalformedURLException e) {
+                logger.info("Malformed URL: " + rawLink);
+            }
         }
+
 
         // return array of links on page
         return linksOnPage;
+    }
+
+    private boolean inside(URL host, URL link) {
+        return normaliseHostName(link.getHost()).contains(normaliseHostName(host.getHost()));
+    }
+
+    private String normaliseHostName(String link) {
+        return link.replaceFirst("^(http[s]?://www\\.|http[s]?://|www\\.)","");
+    }
+
+    private String normaliseURL(URL url) {
+        return url.getProtocol() + "://" + normaliseHostName(url.getHost()) + url.getPath();
     }
 
 }

@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="org.netpreserve:urlcanon:0.1.0" type="repository">
+    <properties maven-id="org.netpreserve:urlcanon:0.1.0" />
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/netpreserve/urlcanon/0.1.0/urlcanon-0.1.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
