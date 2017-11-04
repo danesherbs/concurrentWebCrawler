@@ -48,4 +48,21 @@ public class Trie {
         }
     }
 
+    @Override
+    public String toString() {
+        return printTrie(-1);
+    }
+
+    private String printTrie(int depth) {
+        StringBuilder output = new StringBuilder();
+        for (int i = 0; i < Math.max(depth, 0); i++) {
+            output.append("\t");
+        }
+        output.append(root).append("\n");
+        for (Trie child : children.values()) {
+            output.append(child.printTrie(depth + 1));
+        }
+        return output.toString();
+    }
+
 }

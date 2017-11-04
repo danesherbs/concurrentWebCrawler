@@ -5,9 +5,8 @@ import static org.junit.Assert.assertTrue;
 
 public class TestSiteCrawler {
 
-    private final int MAX_NUMBER_OF_LINKS = 50;
     private final String TEST_WEBSITE = "http://tomblomfield.com/";
-    private SiteCrawler siteCrawler = new SiteCrawler(MAX_NUMBER_OF_LINKS);
+    private SiteCrawler siteCrawler = new SiteCrawler();
 
     @Test
     public void siteCrawlerDoesNotReturnNullGivenURL() throws InterruptedException {
