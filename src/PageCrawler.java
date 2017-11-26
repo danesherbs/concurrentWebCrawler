@@ -9,6 +9,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -17,7 +18,7 @@ public class PageCrawler {
 
     private static final Logger logger = Logger.getLogger(SiteCrawler.class.getName());
 
-    public List<String> getLinks(String link) {
+    public List<String> getLinks(String link, HashSet<String> seen) {
 
         // initialise array of links on page
         List<String> linksOnPage = new ArrayList<>();
@@ -72,7 +73,10 @@ public class PageCrawler {
                 URL rawURL = new URL(rawLink);
                 if (inside(url, rawURL)) {  // stay on same website
                     logger.info(rawURL + " is inside the domain of " + url.getHost() + "; adding to queue");
-                    linksOnPage.add(normaliseURL(rawURL));  // add to linksOnPage array
+                    String normalisedURL = normaliseURL(rawURL);
+                    if (!seen.contains(normalisedURL)) {
+                        linksOnPage.add(normaliseURL(rawURL));  // add to linksOnPage array
+                    }
                 } else {
                     logger.info(rawURL + " is outside the domain of " + url.getHost());
                 }

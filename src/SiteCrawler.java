@@ -1,3 +1,4 @@
+import java.util.HashSet;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -16,24 +17,23 @@ public class SiteCrawler {
     public Trie crawl(String homepage) throws InterruptedException {
         // set up structures for breath-first search
         Trie trie = new Trie();
-        BlockingQueue<String> linkQueue = new LinkedBlockingQueue<>();
+        HashSet<String> seen = new HashSet<>();
+        LinkedBlockingQueue<String> linkedQueue = new LinkedBlockingQueue<>();
         BlockingQueue<Runnable> threadQueue = new LinkedBlockingQueue<>();
         ThreadPoolExecutor executorService = new ThreadPoolExecutor(MIN_THREAD_POOL_SIZE,
                 MAX_THREAD_POOL_SIZE, THREAD_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS, threadQueue);
         PageCrawler pageCrawler = new PageCrawler();
 
         // start crawling given link
-        linkQueue.add(homepage);
-        while (!linkQueue.isEmpty() || executorService.getActiveCount() > 0) {
-            String link = linkQueue.poll();
-            // if no link in queue but will be in the future, wait until one becomes available
-            if (link == null) {
-                Thread.sleep(1);  // wait 1ms for queue to be populated
-            } else if (!trie.contains(link)) {
+        linkedQueue.add(homepage);
+        while (!linkedQueue.isEmpty() || executorService.getActiveCount() > 0) {
+            String link = linkedQueue.take();  // take head of queue; blocks until item is available
+            if (!seen.contains(link)) {
                 logger.info("Visiting " + link);
                 trie.add(link);
+                seen.add(link);
                 executorService.execute(() -> {
-                    linkQueue.addAll(pageCrawler.getLinks(link));
+                    linkedQueue.addAll(pageCrawler.getLinks(link, seen));
                 });
             }
         }
